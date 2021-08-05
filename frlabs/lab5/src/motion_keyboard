@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+import time
+import roslib; roslib.load_manifest('ur_driver')
+import rospy
+import actionlib
+from control_msgs.msg import *
+from std_msgs.msg import String
+from trajectory_msgs.msg import *
+from lab5functions import *
+import numpy as np
+
+global press_key;  press_key = "0"
+
+def callback(msg):
+    global press_key
+    press_key = msg.data
+
+def Limites(q):
+
+    val = True
+
+    if  -6.28 > q[0] or q[0] >=6.28:
+        val= False
+    elif -6.28 > q[1] or q[1] > 6.28:
+        val= False
+    elif -3.14 > q[2] or q[2] > 3.14:
+        val= False
+    elif -6.28 > q[3] or q[3] > 6.28:
+        val= False
+    elif -6.28 > q[4] or q[4] > 6.28:
+        val= False
+    elif -6.28 > q[5] or q[5] > 6.28:
+        val= False
+
+    return True
+
+if __name__ == '__main__':
+    
+    rospy.init_node("test_keyboardGazebo", disable_signals=True)
+
+    robot_client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+
+    print "Waiting for server..."
+    robot_client.wait_for_server()
+    print "Connected to server"
+
+    joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+    delta=0.01
+    xd=np.array([-0.817, -0.192, -0.006])
+    # Joint Configuration inicial
+    q0 = np.array([0, 0, 0, 0, 0, 0])
+    # Configuracion para tener la posicion deseada
+    q= ikine_ur5(xd, q0)
+    #q = [0.0, -1.0, 1.7, -2.2, -1.6, 0.0]
+
+    g = FollowJointTrajectoryGoal()
+    g.trajectory = JointTrajectory()
+    g.trajectory.joint_names = joint_names
+
+    # Initial position
+    g.trajectory.points = [ JointTrajectoryPoint(positions=q, velocities=[0]*6,time_from_start=rospy.Duration(2.0))]
+    robot_client.send_goal(g)
+    robot_client.wait_for_result()
+    rospy.sleep(1)
+    
+    rate = rospy.Rate(100)
+    while not rospy.is_shutdown():
+        robot_client.cancel_goal()
+
+        # Modification of the motion
+        # Suscrbiirse al topico keys
+        rospy.Subscriber("/keys", String, callback)
+        # Inicializamo los incrementos de cada opcion en 0
+        arr_aba=0; adel_atr= 0; izq_der=0 
+
+        # modificar el incrimento dependiendo de la tecla presionada
+        if Limites(q):
+            if press_key == "w":
+                adel_atr= delta
+            elif press_key == "s":
+                adel_atr= -delta
+            elif press_key == "a":
+                izq_der= delta
+            elif press_key == "d":
+                izq_der= -delta
+            elif press_key == "m":
+                arr_aba= delta
+            elif press_key == "n":
+                arr_aba= -delta
+
+        # Modificar la posicion deseada
+        sum=np.array([adel_atr, izq_der, arr_aba])
+        xd =xd+sum
+        # Obtener la configuracion de acuerdo a la nueva posicion
+        q= ikine_ur5(xd, q0)
+        # Verificar que se obtiene la posicion deseada
+        T = fkine_ur5(q)
+        print list(np.round(q,3));
+        print 'Posicion deseada: ', np.round(T[0:3,3],3)
+        print
+
+        g.trajectory.points = [ JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(0.008))]
+        robot_client.send_goal(g)
+        robot_client.wait_for_result()
+        print 'keys:', press_key
+        rate.sleep()
+
+    robot_client.cancel_goal()

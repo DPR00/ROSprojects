@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<robot>
+    <gazebo reference="base_link">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="Link1">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    <gazebo reference="Link2">
+        <material>Gazebo/RedBright</material>
+    </gazebo>
+    <gazebo reference="Link3">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    <gazebo reference="Link4">
+        <material>Gazebo/RedBright</material>
+    </gazebo>
+    <gazebo reference="Link5">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    <gazebo reference="Link6">
+        <material>Gazebo/RedBright</material>
+    </gazebo>
+</robot> 

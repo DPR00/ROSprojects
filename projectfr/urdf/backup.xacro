@@ -1,0 +1,298 @@
+<?xml version="1.0" ?>
+<!-- Archivo xacro del robot -->
+<robot name="robotfr" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<!-- Inluir macros-->
+  <xacro:include filename="$(find projectfr)/urdf/materiales.xacro"/>
+  <xacro:include filename="$(find projectfr)/urdf/colores.gazebo"/>
+
+<!-- Base del robot ('base_link')-->
+  <link name="base_link">
+    <!-- Propiedades inerciales-->
+    <inertial>
+      <origin xyz="0.00072554 2.2065E-05 0.024268" rpy="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Visualizacion del robot-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/base_link.STL" />
+      </geometry>
+      <material name="c_base_link" />
+    </visual>
+    <!-- Propiedades de colision -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+       <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+<!-- Link 1 ('Link1')-->
+  <link name="Link1">
+    <!-- Propiedades inerciales -->
+    <inertial>
+      <origin xyz="0.011601 0.022341 0.044136" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link1.STL" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <!-- Propiedades de colision -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://projectfr/meshes/Link1.STL" />
+      </geometry>
+    </collision>
+
+<!-- Articulacion entre Base_Link y Link1 ('joint1')-->
+  </link>
+  <joint name="joint1" type="revolute"> <!-- Tipo revolucion -->
+    <!-- Propiedades de la articulacion-->
+    <origin xyz="0 0 0.065406" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="Link1" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.7453" upper="2.7925" effort="200" velocity="200" />
+  </joint>
+
+<!-- Link 2 ('Link2')-->
+  <link name="Link2">
+    <!-- Propiedades inerciales -->
+    <inertial>
+      <origin xyz="0.054694 0.0036383 -0.0056108" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+       <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link2.STL" />
+      </geometry>
+      <material name="red" />
+    </visual>
+    <!-- Propiedades de colision-->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+<!-- Articulacion entre Link1 y Link2 ('joint2')-->
+  <joint name="joint2" type="revolute"> <!-- Tipo revolucion-->
+    <!-- Propiedades de la articulacion-->
+    <origin xyz="0.029687 -0.022 0.061593" rpy="3.1402 -1.5708 1.5722" />
+    <parent link="Link1" />
+    <child link="Link2" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.5235" upper="1.2217" effort="200" velocity="200" />
+  </joint>
+
+<!-- Link 3 ('Link3')-->
+  <link name="Link3">
+    <!-- Propiedades inerciales -->
+    <inertial>
+      <origin xyz="0.0099997 0.0071403 0.037517" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link3.STL" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <!-- Propiedades de colision-->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+<!-- Articulacion entre el Link2 y el Link3 ('joint3')-->
+  <joint name="joint3" type="revolute"> <!-- Tipo revolucion-->
+    <!-- Propiedades de la articulacion-->
+    <origin xyz="0.108 0 -0.0094471" rpy="0 0 0" />
+    <parent link="Link2" />
+    <child link="Link3" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.9671" upper="1.0472" effort="200" velocity="200" />
+  </joint>
+
+<!-- Link 4 ('Link4')-->
+  <link name="Link4">
+    <!-- Propiedades inerciales -->
+    <inertial>
+      <origin xyz="-8.0804E-06 0.0043797 0.040569" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link4.STL" />
+      </geometry>
+      <material name="red" />
+    </visual>
+    <!-- Propiedades de colision-->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+      <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link4.STL" />
+      </geometry>
+    </collision>
+
+<!-- Articulacion entre link3 y link4 ('joint4')-->
+  </link>
+  <joint name="joint4" type="revolute"> <!-- Tipo revolucion-->
+    <!-- Propiedades de la articulacion-->
+    <origin xyz="0.020001 0.10743 0.031439" rpy="-1.5708 0 0" />
+    <parent link="Link3" />
+    <child link="Link4" />
+    <axis xyz="0 0 1" />
+    <limit lower="-6.1086" upper="6.1086" effort="200" velocity="200" />
+  </joint>
+
+<!-- Link 5 ('Link5')-->
+  <link name="Link5">
+    <!-- Propiedades inerciales -->
+    <inertial> 
+      <origin xyz="0.00025302 -0.0020133 0.010352" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link5.STL" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <!-- Propiedades de colision-->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado -->
+        <mesh filename="package://projectfr/meshes/Link5.STL" />
+      </geometry>
+    </collision>
+
+<!-- Articulacion entre Link4 y Link5 ('Joint5')-->
+  </link>
+  <joint name="joint5" type="revolute"> <!-- Tipo revolucion-->
+    <origin xyz="0 -0.010414 0.06155" rpy="1.5708 -1.5708 -3.1416" />
+    <parent link="Link4" />
+    <child link="Link5" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-3.5779" upper="0.6283" effort="200" velocity="200" />
+  </joint>
+
+<!-- Link 6 ('Link6')-->
+  <link name="Link6">
+    <!-- Propiedades inerciales-->
+    <inertial>
+      <origin xyz="5.5511E-17 5.421E-20 -0.010506" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10" />
+    </inertial>
+    <!-- Propiedades de visualizacion-->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado-->
+        <mesh filename="package://projectfr/meshes/Link6.STL" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <!-- Propiedades de colision -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Enmallado-->
+        <mesh filename="package://projectfr/meshes/Link6.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+<!-- Articulacion entre el Link 5 y Link 6 ('joint6')-->
+  <joint name="joint6" type="revolute"> <!-- Tipo revolucion-->
+    <!-- Propiedades de la articulacion-->
+    <origin xyz="0 -0.01628 0.010525" rpy="-1.5708 0 0" />
+    <parent link="Link5" />
+    <child link="Link6" />
+    <axis xyz="0 0 1" />
+    <limit lower="-6.2832" upper="6.2832" effort="200" velocity="200" />
+  </joint>
+  
+  <!-- Transmissions for ROS Control 
+  <xacro:macro name="transmission_block" params="joint_name">
+    <transmission name="tran1">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${joint_name}">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor1">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro> -->
+
+  <xacro:macro name="transmission_block" params="tran joint_name motor_n">
+    <transmission name="${tran}">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${joint_name}">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${motor_n}">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:transmission_block tran="tran1" joint_name="joint1" motor_n="motor1"/>
+  <xacro:transmission_block tran="tran2" joint_name="joint2" motor_n="motor2"/>
+  <xacro:transmission_block tran="tran3" joint_name="joint3" motor_n="motor3"/>
+  <xacro:transmission_block tran="tran4" joint_name="joint4" motor_n="motor4"/>
+  <xacro:transmission_block tran="tran5" joint_name="joint5" motor_n="motor5"/>
+  <xacro:transmission_block tran="tran6" joint_name="joint6" motor_n="motor6"/>
+
+  <!-- ros_control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/robotfr</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>	
+</robot>

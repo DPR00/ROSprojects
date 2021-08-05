@@ -1,0 +1,192 @@
+#!/usr/bin/env python
+import rospy
+from std_msgs.msg import String
+from sensor_msgs.msg import JointState
+from lab3functions import *
+
+global press_key;  press_key = "0"
+
+# Funcion que se ejecuta cada vez que se ejecuta el suscriptor
+def callback(msg):
+    global press_key
+    press_key = msg.data
+
+def Limites(q):
+
+    val = True
+
+    if  -6.28 > q[0] or q[0] >=6.28:
+        val= False
+    elif -6.28 > q[1] or q[1] > 6.28:
+        val= False
+    elif -3.14 > q[2] or q[2] > 3.14:
+        val= False
+    elif -6.28 > q[3] or q[3] > 6.28:
+        val= False
+    elif -6.28 > q[4] or q[4] > 6.28:
+        val= False
+    elif -6.28 > q[5] or q[5] > 6.28:
+        val= False
+
+    return True
+
+if __name__ == '__main__':
+    # Inicializamos el nodo "Movimiento_Rviz"
+    rospy.init_node("Movimiento_RViz")
+
+    # Creamos un nodo publicador
+    pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+
+    # Joint names
+    jnames = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint','wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+
+    #incremento de cada movimiento
+    delta=0.01
+    # Posicion deseada inicial
+    xd=np.array([-0.17, -0.092, 0.1])
+    # Joint Configuration inicial
+    q0 = np.array([0, 0, 0, 0, 0, 0])
+    # Configuracion para tener la posicion deseada
+    q= ikine_ur5(xd, q0)
+    # Cinematica directa para verificar que se tiene la posicion deseada
+    T = fkine_ur5(q)
+    # imprimir 
+    print 'Posicion actual: ', np.round(T[0:3,3],3)
+
+    # Mientras no se interrumpa ROS, ejecutar:
+    while not rospy.is_shutdown():
+        # Suscrbiirse al topico keys
+        rospy.Subscriber("/keys", String, callback)
+        # Inicializamo los incrementos de cada opcion en 0
+        arr_aba=0; adel_atr= 0; izq_der=0 
+
+        # modificar el incrimento dependiendo de la tecla presionada
+        if Limites(q):
+            if press_key == "w":
+                adel_atr= delta
+            elif press_key == "s":
+                adel_atr= -delta
+            elif press_key == "a":
+                izq_der= delta
+            elif press_key == "d":
+                izq_der= -delta
+            elif press_key == "m":
+                arr_aba= delta
+            elif press_key == "n":
+                arr_aba= -delta
+
+        # Modificar la posicion deseada
+        sum=np.array([adel_atr, izq_der, arr_aba])
+        xd =xd+sum
+        # Obtener la configuracion de acuerdo a la nueva posicion
+        q= ikine_ur5(xd, q0)
+        # Verificar que se obtiene la posicion deseada
+        T = fkine_ur5(q)
+        print list(np.round(q,3));
+        print 'Posicion deseada: ', np.round(T[0:3,3],3)
+        print
+        # Objeto (mensaje) de tipo JointState
+        jstate = JointState()
+        # Asignar valores al mensaje
+        jstate.header.stamp = rospy.Time.now();  jstate.name = jnames
+        # Add the head joint value (with value 0) to the joints
+        jstate.position = q
+        # Loop rate (in Hz)
+        rate = rospy.Rate(10)
+        # Current time (needed for ROS)
+        jstate.header.stamp = rospy.Time.now()
+        # Publish the message
+        pub.publish(jstate)
+        # Show the axes and buttons
+        print 'keys:', press_key
+        # Wait for the next iteration
+        rate.sleep()
+
+'''
+#!/usr/bin/env python
+
+import rospy
+from std_msgs.msg import String
+from sensor_msgs.msg import JointState
+from lab3functions import *
+
+global press_key
+press_key = "0"
+
+# Funcion que se ejecuta cada vez que se ejecuta el suscriptor
+def callback(msg):
+
+    global press_key
+    press_key = msg.data
+
+if __name__ == '__main__':
+    # Inicializamos el nodo "Movimiento_Rviz"
+    rospy.init_node("Movimiento_RViz")
+    # Creamos un nodo publicador
+    pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+    
+    # Joint names
+    jnames = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint','wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+    
+    #incremento de cada movimiento
+    delta=0.01
+
+    # Posicion deseada inicial
+    xd=np.array([-0.817, -0.192, -0.006])
+    # Joint Configuration inicial
+    q0 = np.array([0, 0, 0, 0, 0, 0])
+    # Configuacion para tener la posicion deseada
+    q= ikine_ur5(xd, q0)
+    # Cinematica directa para verificar que se tiene la posicion deseada
+    T = fkine_ur5(q)
+    # imprimir 
+    print('Posicion actual:\n', np.round(T[0:3,3],3))
+    # Mientras no se interrumpa ROS, ejecutar:
+    while not rospy.is_shutdown():
+        # Suscrbiirse al topico keys
+        rospy.Subscriber("/keys", String, callback)
+        # Inicializamo los incrementos de cada opcion en 0
+        arr_aba=0; adel_atr= 0; izq_der=0 
+
+        # modificar el incrimento dependiendo de la tecla presionada
+        if press_key == "w":
+            adel_atr= delta
+        elif press_key == "s":
+            adel_atr= -delta
+        elif press_key == "a":
+            izq_der= delta
+        elif press_key == "d":
+            izq_der= -delta
+        elif press_key == "m":
+            arr_aba= delta
+        elif press_key == "n":
+            arr_aba= -delta
+
+        # Modificar la posicion deseada
+        sum=np.array([adel_atr, izq_der, arr_aba])
+        xd =xd+sum
+        # Obtener la configuracion de acuerdo a la nueva posicion
+        q= ikine_ur5(xd, q0)
+        # Verificar que se obtiene la posicion deseada
+        T = fkine_ur5(q)
+        print(np.round(q,3))
+        print('Posicion deseada: \n', np.round(T[0:3,3],3))
+        # Objeto (mensaje) de tipo JointState
+        jstate = JointState()
+        # Asignar valores al mensaje
+        jstate.header.stamp = rospy.Time.now()
+        jstate.name = jnames
+        # Add the head joint value (with value 0) to the joints
+        jstate.position = q
+        # Loop rate (in Hz)
+        rate = rospy.Rate(10)
+        # Current time (needed for ROS)
+        jstate.header.stamp = rospy.Time.now()
+        # Publish the message
+        pub.publish(jstate)
+        # Show the axes and buttons
+        print 'keys:', press_key
+        # Wait for the next iteration
+        rate.sleep()
+
+'''

@@ -1,0 +1,4 @@
+# Robotman
+ROS package of Robotman model for gazebo!
+
+Robotman is a robot that combines qualities for interaction with humans, and security patrolling services. The robot is inspired by the information obtained from a security company in which their personnel not only perform security patrolling services, but have to interact with people, providing additional information about the area they safeguard. The robot is able to perform security patrols during the night while functioning as a guide during the day. We designed and implemented a robust, easy to assemble, anthropomorphic security robot aiming to patrol large indoor areas, interact with humans, welcome, provide information and guide clients to their destination, as well as function as a telepresence platform for the human security guards. Robotman is user friendly and pleasing to the people, it can perform security tasks and interact with them.

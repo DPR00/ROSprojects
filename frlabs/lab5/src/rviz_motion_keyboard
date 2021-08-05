@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+#
+
+from __future__ import print_function
+import rospy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import String
+from markers import *
+from lab5functions import *
+
+global press_key;
+press_key = "0"
+
+def callback(msg):
+    global press_key
+    press_key = msg.data
+
+def Limites(q):
+
+    if  -6.28 >= q[0] or q[0] >=6.28:
+        val= False
+    elif -6.28 >= q[1] or q[1] >= 6.28:
+        val= False
+    elif -3.14 >= q[2] or q[2] >= 3.14:
+        val= False
+    elif -6.28 >= q[3] or q[3] >= 6.28:
+        val= False
+    elif -6.28 >= q[4] or q[4] >= 6.28:
+        val= False
+    elif -6.28 >= q[5] or q[5] >= 6.28:
+        val= False
+    else:
+        val= True
+
+    return val
+
+# Initialize the node
+rospy.init_node("test_keyboardRviz", disable_signals=True)
+print('starting motion ... ')
+# Publisher: publish to the joint_states topic
+pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+# Files for the logs
+fxcurrent = open("/home/diegopalma/Documents/ROSProjects/lab_ws/src/frlabs/lab5/tmp/xcurrent_key.txt", "w")                
+fxdesired = open("/home/diegopalma/Documents/ROSProjects/lab_ws/src/frlabs/lab5/tmp/xdesired_key.txt", "w")
+fq = open("/home/diegopalma/Documents/ROSProjects/lab_ws/src/frlabs/lab5/tmp/q_key.txt", "w")
+
+# Markers for the current and desired positions
+bmarker_current  = BallMarker(color['RED'])
+bmarker_desired = BallMarker(color['GREEN'])
+
+# Joint names
+jnames = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
+          'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+
+# Desired position
+xd = np.array([-0.5, 0.125, 0.2491])
+delta=0.001
+# Initial configuration
+q0  = np.array([0.0, -1.0, 1.7, -2.2, -1.6, 0.0])
+J0 = np.linalg.pinv(jacobian_position(q0))
+print("J de configuracion inicial")
+print(J0) 
+# Resulting initial position (end effector with respect to the base link)
+T = fkine(q0)
+x0 = T[0:3,3]
+
+# Red marker shows the achieved position
+bmarker_current.xyz(x0)
+# Green marker shows the desired position
+bmarker_desired.xyz(xd)
+
+# Instance of the JointState message
+jstate = JointState()
+# Values of the message
+jstate.header.stamp = rospy.Time.now()
+jstate.name = jnames
+# Add the head joint value (with value 0) to the joints
+jstate.position = q0
+
+# Frequency (in Hz) and control period 
+freq = 200
+dt = 1.0/freq
+rate = rospy.Rate(freq)
+
+# Initial joint configuration
+q = copy(q0)
+x = x0      # Valor inicial de x
+# Main loop
+#for i in range(1):
+
+while not rospy.is_shutdown():
+    # Current time (needed for ROS)
+    jstate.header.stamp = rospy.Time.now()
+
+    # Modification of the motion
+    # Suscrbiirse al topico keys
+    rospy.Subscriber("/keys", String, callback)
+    # Inicializamo los incrementos de cada opcion en 0
+    arr_aba=0; adel_atr= 0; izq_der=0     
+    print(q)
+    val =Limites(q)
+    if val:
+        if press_key == "w":
+            adel_atr= delta
+        elif press_key == "s":
+            adel_atr= -delta
+        elif press_key == "a":
+            izq_der= delta
+        elif press_key == "d":
+            izq_der= -delta
+        elif press_key == "m":
+            arr_aba= delta
+        elif press_key == "n":
+            arr_aba= -delta
+        xd[0]=xd[0]+adel_atr
+        xd[1]=xd[1]+izq_der
+        xd[2]=xd[2]+arr_aba
+        # Kinematic control law for position (complete here)
+        # -----------------------------
+        e = x-xd  # Error
+        k = 0.5   # ganancia cinematica
+        de= -k*e  # Derivada temporal del error
+        J_= np.linalg.pinv(jacobian_position(q))  # Pseudo-inversa del jacobiano
+        q = q + dt*J_.dot(de)  # Integracion de Euler
+
+        #--------------------------------------------------------
+        # Current configuration trnaformation to current position
+        T = fkine(q)      # Transformacion homogenea 
+        x = T[0:3,3]      # Posicion actual
+
+        # Log values                                                      
+        fxcurrent.write(str(x[0])+' '+str(x[1]) +' '+str(x[2])+'\n')
+        fxdesired.write(str(xd[0])+' '+str(xd[1])+' '+str(xd[2])+'\n')
+        fq.write(str(q[0])+" "+str(q[1])+" "+str(q[2])+" "+str(q[3])+" "+str(q[4])+" "+str(q[5])+"\n")
+        # Publish the message
+        jstate.position = q
+        pub.publish(jstate)
+        bmarker_desired.xyz(xd)
+        bmarker_current.xyz(x)
+        #print("xd: ", xd)
+        #print("x: ", np.round(x,4))
+
+    # Wait for the next iteration
+    rate.sleep()
+
+print('ending motion ...')
+fxcurrent.close()
+fxdesired.close()
+fq.close()

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="worlds/empty.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- Robot model -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find robotman_description)/urdf/robotman.xacro'" />
+
+  <!-- Spawn the robot model -->
+  <node name="movil" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param robot_description -model robotman -z 0.2" />
+  
+  <!-- Load controllers -->
+  <rosparam file="$(find robotman_description)/config/joints.yaml" command="load" />
+
+  <!-- Controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/robotman"
+        args="joint_state_controller
+              joint1_position_controller
+              joint2_position_controller
+              joint3_position_controller
+              joint4_position_controller"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn ="false" output="screen" >
+    <remap from="/joint_states" to="/robotman/joint_states" />
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find robotman_description)/rviz/robotman.rviz"/>
+
+  <node name="rqt_publisher" pkg="rqt_publisher" type="rqt_publisher" />
+
+</launch>

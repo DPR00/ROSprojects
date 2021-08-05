@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+import rospy
+from sensor_msgs.msg import JointState
+
+def publicar(names, config):
+    # Objeto (mensaje) de tipo JointState
+    jstate = JointState()
+    
+    # Asignar valores al mensaje
+    jstate.header.stamp = rospy.Time.now()
+    jstate.name = jnames
+    jstate.position = jconfig
+      
+    # Frecuencia del envio (en Hz)
+    rate = rospy.Rate(100)
+    # Tiempo actual (necesario como indicador para ROS)
+    jstate.header.stamp = rospy.Time.now()
+    # Publicar mensaje
+    pub.publish(jstate)
+    rate.sleep()
+
+
+if __name__ == "__main__":
+
+    rospy.init_node("jointsNodeinterpol")
+    pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+    
+    # Nombres de las articulaciones
+    jnames = ("head_pan", "right_j0", "right_j1", "right_j2", "right_j3",
+    "right_j4", "right_j5", "right_j6")
+    
+    # Configuracion articular deseada (en radianes)
+    jconfig1 = [0, 1.66, -0.92, -0.11, 1.63, -0.02, 0.85, 0.22]
+    jconfig2 = [0, -1.58, 0.02, -0.04, 1.55, -0.02, -1.60, -1.34]
+    
+    # Configuracion inicial
+    jconfig = jconfig1
+
+    # Numero de iteraciones
+    n=200
+ 
+    # Pendiente de cada articulacion
+    pendiente0= 0#jconfig2[0]-jconfig1[0])/n
+    pendiente1= (jconfig2[1]-jconfig1[1])/n
+    pendiente2= (jconfig2[2]-jconfig1[2])/n
+    pendiente3= (jconfig2[3]-jconfig1[3])/n
+    pendiente4= (jconfig2[4]-jconfig1[4])/n
+    pendiente5= (jconfig2[5]-jconfig1[5])/n
+    pendiente6= (jconfig2[6]-jconfig1[6])/n
+    pendiente7= (jconfig2[7]-jconfig1[7])/n
+    pendiente= [pendiente0, pendiente1, pendiente2, pendiente3, pendiente4, pendiente5, pendiente6, pendiente7]
+    # Bucle de ejecucion continua
+#   while not rospy.is_shutdown():
+
+    for i in range(8):
+        for j in range(n):
+            publicar(jnames,jconfig)
+            jconfig[i]=jconfig[i]+pendiente[i]
+
+
+'''
+    for i in range(n):
+        jconfig[1]=jconfig[1]+pendiente1
+        jconfig[2]=jconfig[2]+pendiente2
+        jconfig[3]=jconfig[3]+pendiente3
+        jconfig[4]=jconfig[4]+pendiente4
+        jconfig[5]=jconfig[5]+pendiente5
+        jconfig[6]=jconfig[6]+pendiente6
+        jconfig[7]=jconfig[7]+pendiente7
+        publicar(jnames,jconfig)
+'''
+        
+    
+        # Esperar hasta la siguiente iteracion
+        

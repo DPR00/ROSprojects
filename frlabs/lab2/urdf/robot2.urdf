@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<robot name="robocov">
+
+  <!-- Color of materials -->
+  <material name="yellow">
+    <color rgba="1 1 0 1"/>
+  </material>
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+  <!--  Se agrega el color verde -->
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  <!--  Se agrega el color rosado -->
+  <material name="pink">
+    <color rgba="0.6 0.2 0.6 1"/>
+  </material>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.01" radius="0.2"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="blue" />
+    </visual>
+  </link>
+  <!--  Se cambia el nombre a joint 1 -->
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/><!--  Se modifica los links parent y child -->
+    <origin xyz="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <limit effort="300" velocity="0.1" lower="-3.1" upper="3.1"/>
+  </joint>
+  <!--  Se cambia el nombre a link 1 -->
+  <link name="link1">
+    <visual>
+      <geometry>
+        <cylinder length="0.6" radius="0.04"/>  <!--Se cambia la longitud del link a 0.6m-->
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.3"/>   <!--Se cambia el origen del link a 0.3-->
+      <material name="green" />
+    </visual>
+  </link>
+  <!--  Se cambia el nombre a joint 2-->
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>   <!--  Se modifica los links parent y child -->
+    <child link="linkcircular"/>
+    <origin xyz="0 0 0.6"/> <!--Se cambia el origen del link a 0.6-->
+    <axis xyz="0 1 0" />
+    <limit effort="300" velocity="0.1" lower="-0.85" upper="0.85"/>
+  </joint>
+    <!--Se agrega el link circular-->
+  <link name="linkcircular">
+    <visual>
+      <geometry>
+        <sphere radius="0.04"/> <!--Se cambia el link a tipo circular-->
+      </geometry>
+      <origin rpy="0 1.57 0" xyz="0 0 0"/>
+      <material name= "red" />
+    </visual>
+  </link>
+<!--Se agrega la articulacion joint 3-->
+  <joint name="joint3" type="fixed"> <!--Se cambia el tipo de articulacion-->
+    <parent link="linkcircular"/><!--  Se modifica los links parent y child -->
+    <child link="link2"/>
+    <origin xyz="0 0 0"/>
+    <axis xyz="0 1 0" />
+    <limit effort="300" velocity="0.1" lower="-0.85" upper="0.85"/>
+  </joint>
+
+<!--Se cambia el nombre a link 2-->
+  <link name="link2">
+    <visual>
+      <geometry>
+        <cylinder length="0.4" radius="0.04"/>
+      </geometry>
+      <origin rpy="0 1.57 0" xyz="0.2 0 0"/> <!--  Se modifica el origen -->
+      <material name="pink" /><!--  Se cambia el color del link -->
+    </visual>
+  </link>
+</robot>
